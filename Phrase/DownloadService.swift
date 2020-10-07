@@ -49,6 +49,9 @@ class DownloadService {
 	}
 	
 	func startDownload(_ track: DownloadableItem) {
+		#if VERBOSE
+		print("Download started:\n\(track.url)")
+		#endif
 		let download = Download(track: track)
 		download.task = downloadsSession.downloadTask(with: track.url)
 		download.task?.resume()

@@ -25,6 +25,7 @@ class TableCell: UITableViewCell {
 	@IBOutlet weak var cancelButton: UIButton!
 	@IBOutlet weak var pauseOrResumeButton: UIButton!
 	@IBOutlet weak var downloadButton: UIButton!
+	@IBOutlet weak var unzipProgressLabel: UILabel!
 	
 	@IBAction func cancelTapped(_ sender: Any) {
 		delegate?.cancelTapped(self)
@@ -78,7 +79,12 @@ class TableCell: UITableViewCell {
 	}
 
 	func updateDisplay(progress: Float, status: String) {
+		if progress == 1.0 {
+			progressLabel.textAlignment = .center
+			progressLabel.text = "Unzipping..."
+		} else {
+			progressLabel.text = status
+		}
 		progressView.progress = progress
-		progressLabel.text = status
 	}
 }

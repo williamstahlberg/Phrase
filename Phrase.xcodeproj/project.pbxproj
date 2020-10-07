@@ -23,6 +23,7 @@
 		91A80FD6222AF0B500A97188 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91A80FD5222AF0B500A97188 /* Assets.xcassets */; };
 		91A80FD9222AF0B500A97188 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91A80FD7222AF0B500A97188 /* LaunchScreen.storyboard */; };
 		91A81012222AF4FC00A97188 /* C_ffind.c in Sources */ = {isa = PBXBuildFile; fileRef = 91A81011222AF4FC00A97188 /* C_ffind.c */; };
+		91BF060825280CB400CAD464 /* DebugDataset in Resources */ = {isa = PBXBuildFile; fileRef = 91BF060725280CB400CAD464 /* DebugDataset */; };
 		91CE48F4247EDB3A00ABEA5A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91CE48F3247EDB3A00ABEA5A /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +46,7 @@
 		91A80FDA222AF0B500A97188 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91A81010222AF4FB00A97188 /* Phrase-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Phrase-Bridging-Header.h"; sourceTree = "<group>"; };
 		91A81011222AF4FC00A97188 /* C_ffind.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = C_ffind.c; sourceTree = "<group>"; };
+		91BF060725280CB400CAD464 /* DebugDataset */ = {isa = PBXFileReference; lastKnownFileType = text; path = DebugDataset; sourceTree = "<group>"; };
 		91CE48F3247EDB3A00ABEA5A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -64,6 +66,7 @@
 		9165472E2230326F00B358CD /* Files */ = {
 			isa = PBXGroup;
 			children = (
+				91BF060725280CB400CAD464 /* DebugDataset */,
 				91908A642481B9D100887BE5 /* Font.ttf */,
 			);
 			name = Files;
@@ -164,7 +167,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1010;
-				LastUpgradeCheck = 1010;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = subli;
 				TargetAttributes = {
 					91A80FCA222AF0B300A97188 = {
@@ -204,6 +207,7 @@
 				910A77C1250A803E0074E354 /* README.md in Resources */,
 				91A80FD4222AF0B300A97188 /* Main.storyboard in Resources */,
 				91908A652481B9D100887BE5 /* Font.ttf in Resources */,
+				91BF060825280CB400CAD464 /* DebugDataset in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +279,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -300,10 +305,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-DVERBOSE";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -336,6 +342,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -355,9 +362,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-DVERBOSE";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -372,13 +380,15 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3543KPEG7A;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = Phrase/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.wstahlberg.Phrase;
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.williamstahlberg.Phrase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Phrase/Phrase-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -396,14 +406,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3543KPEG7A;
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = Phrase/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.wstahlberg.Phrase;
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.williamstahlberg.Phrase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Phrase/Phrase-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;

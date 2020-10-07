@@ -20,6 +20,7 @@ class InitialViewController: UIViewController {
 	let lineMaxWidth: Int32 = 200
 	var destinationUrl: URL? = nil
 	var progress: Float = 0
+	@IBOutlet weak var UnzippingLabel: UILabel!
 	
 	let enFileName = "OpenSubtitles.en-es.en"
 	let esFileName = "OpenSubtitles.en-es.es"
@@ -44,11 +45,15 @@ class InitialViewController: UIViewController {
 	}
 	
 	func processDownload(url: URL) {
-		guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? TableCell else {
-			return
-		}
-		cell.progressLabel.textAlignment = .center
-		cell.progressLabel.text = "Unzipping..."
+//		guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? TableCell else {
+//			return
+//		}
+		
+		#if VERBOSE
+		print("documentDirectory:\n\(documentDirectory.path)")
+		print("Downloaded to:\n\(url.path)")
+		print("Unzipping...")
+		#endif
 		
 		var unzipDirectory: URL? = nil
 		do {
@@ -57,27 +62,30 @@ class InitialViewController: UIViewController {
 			print("Something went wrong while unzipping.")
 		}
 		
+		#if VERBOSE
+		print("unzipDirectory:\n\(String(describing: unzipDirectory?.path))")
+		#endif
+		
 		if let unzipDirectory = unzipDirectory, let datasetFileName = datasetFileName {
 			let urlEn = unzipDirectory.appendingPathComponent(enFileName)
 			let urlEs = unzipDirectory.appendingPathComponent(esFileName)
 			let urlDestination = unzipDirectory.appendingPathComponent(datasetFileName)
-			cell.progressLabel.text = "Joining files..."
 			
-			print("\ndatasetFileName:")
-			print(datasetFileName)
+			#if VERBOSE
+			print("\n (After joining) datasetFileName:\n\(datasetFileName)")
+			#endif
 			
 			DispatchQueue.global(qos: .userInitiated).async {
 				
-				C_combine(urlEn.path, urlEs.path, urlDestination.path, self.lineMaxWidth)
+				C_combine(urlEs.path, urlEn.path, urlDestination.path, self.lineMaxWidth)
 				DispatchQueue.main.async {
 					self.timer.invalidate()
-//					self.cleanUpDirectory(directory: url.deletingLastPathComponent(), keep: [urlDestination])
+					self.cleanUpDirectory(directory: self.documentDirectory, keep: [urlDestination])
 					self.dismiss(animated: true, completion: nil)
 				}
-			}
 			
+			}
 			timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateCombineProgress), userInfo: nil, repeats: true)
-
 		}
 	}
 	
@@ -90,27 +98,48 @@ class InitialViewController: UIViewController {
 				let name = url.lastPathComponent
 				let destination = documentDirectory.appendingPathComponent(name)
 				try fileManager.moveItem(at: url, to: destination)
-				newUrlsToKeep.append(destination)
+				let newUrl = destination.resolvingSymlinksInPath()
+				newUrlsToKeep.append(newUrl)
 			}
 		} catch let error {
 			print("Could not copy file to disk: \(error.localizedDescription)")
 		}
 		
+		#if VERBOSE
+		print("URLs to keep:")
+		for url in newUrlsToKeep {
+			print(url.path)
+		}
+		#endif
+		
+		let resourceKeys : [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+		let enumerator = FileManager.default.enumerator(at: documentDirectory, includingPropertiesForKeys: resourceKeys, options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+			return true
+		})!
+		
+		for case let url as URL in enumerator {
+			// Make the url match the other ones that use the symlink /var.
+			let resolvedUrl = url.resolvingSymlinksInPath()
+			if !newUrlsToKeep.contains(resolvedUrl) {
+				print("DELETE: \(resolvedUrl.path)")
+				try? fileManager.removeItem(at: resolvedUrl)
+			}
+		}
+		
+		#if VERBOSE
+		/* List the remaining files we have in the Documents folder. */
+		let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		do {
-			let resourceKeys : [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
-			let documentsURL = try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-			let enumerator = FileManager.default.enumerator(at: documentsURL, includingPropertiesForKeys: resourceKeys, options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-				return true
-			})!
-			
-			for case let url as URL in enumerator {
-				if !newUrlsToKeep.contains(url) {
-					try? fileManager.removeItem(at: url)
-				}
+			let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
+			print("Remaining files after cleanup on '\(documentsURL.path)':")
+			for url in fileURLs {
+				print(url.path)
 			}
 		} catch {
-			print(error)
+			print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
 		}
+		#endif
+		
 	}
 	
 	func reload(_ row: Int) {
@@ -119,23 +148,28 @@ class InitialViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.isModalInPresentation = true
+//		self.isModalInPresentation = true
 		
 		tableView.tableFooterView = UIView()
 		downloadService.downloadsSession = downloadsSession
 
-		let url = URL(string: "http://192.168.1.115/small/en-es.txt.zip")!
-//		let url = URL(string: "http://192.168.0.21/small/en-es.txt.zip")!
-//		let url = URL(string: "http://192.168.0.15/en-es.txt.zip")!
-//		let url = URL(string: "https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/moses/en-es.txt.zip")!
+//		let urlEnEs = URL(string: "http://192.168.1.133/orig/en-es.txt.zip")!
+		let urlEnEs = URL(string: "https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/moses/en-es.txt.zip")!
 		downloadableItem.append(DownloadableItem(
-			title: "OpenSubtitles2018 en-es",
-			subTitle: url.absoluteString,
-			url: url,
+			title: "English-Español",
+			subTitle: urlEnEs.absoluteString,
+			url: urlEnEs,
 			index: 0
 		))
 		
-		print("datasetFileName:\(datasetFileName!)")
+//		let urlEnFr = URL(string: "https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/moses/en-fr.txt.zip")!
+//		downloadableItem.append(DownloadableItem(
+//			title: "English-Français",
+//			subTitle: urlEnFr.absoluteString,
+//			url: urlEnFr,
+//			index: 1
+//		))
+		
 	}
 	
 //	override func viewDidAppear(_ animated: Bool) {
@@ -263,7 +297,6 @@ extension InitialViewController: URLSessionDownloadDelegate {
 		download.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
 		let totalSize = ByteCountFormatter.string(fromByteCount: totalBytesExpectedToWrite, countStyle: .file)
 		let status = String(format: "%.1f%% of %@", download.progress * 100, totalSize)
-		
 		DispatchQueue.main.async {
 			if let cell = self.tableView.cellForRow(at: IndexPath(row: download.track.index, section: 0)) as? TableCell {
 				cell.updateDisplay(progress: download.progress, status: status)

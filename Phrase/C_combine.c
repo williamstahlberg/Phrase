@@ -40,13 +40,15 @@ void C_combine(const char *path_A, const char *path_B, const char *output_path, 
 	FILE *fp_A = fopen(path_A, "r");
 	FILE *fp_B = fopen(path_B, "r");
 	FILE *fp_output = fopen(output_path, "w+");
-
+	
+	#if VERBOSE
 	printf("\n------------------\n");
 	printf("C: %s\n", path_A);
 	printf("C: %s\n", path_B);
 	printf("C: %s\n", output_path);
 	printf("------------------\n");
-
+	#endif
+	
 	fseek(fp_A, 0L, SEEK_END);
 	off_t f_A_size = ftello(fp_A);
 	fseek(fp_A, 0L, SEEK_SET);

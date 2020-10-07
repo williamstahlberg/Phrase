@@ -9,6 +9,14 @@
 //  http://www.opensubtitles.org/
 //
 
+// TODO:
+// 1. Finish support for dark mode.
+// 2. Fix being able to scroll horizontally on app start.
+// 3. Fix not lowercasing accented capitalized letters like É.
+// 4. Add error message when URL doesn't work (right it just says "problem unzipping file")
+// 5. Hide "Pause" and "Cancel" buttons after download is finished.
+// 6. Remove extra progress label IBOutlet.
+
 import UIKit
 import WebKit
 
@@ -18,6 +26,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 	@IBOutlet weak var titleLabel: UILabel!
 	@IBOutlet weak var N_approxLabel: UILabel!
 	@IBOutlet weak var progressView: UIProgressView!
+	
+//	let DEBUG = false
 	
 	let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 	let datasetFileName = "OpenSubtitles.en-es_Dataset"
@@ -115,9 +125,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 			presentInitialViewControllerWith(datasetFileName: datasetUrl.path)
 			return
 		}
-		print("datasetUrl set:\n\(datasetUrl.path)")
-		
-		print("------------")
+
 		let fileManager = FileManager.default
 		do {
 			let resourceKeys : [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
@@ -126,16 +134,17 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 				return true
 			})!
 			
+			#if VERBOSE
 			for case let url as URL in enumerator {
 				print(url)
 			}
+			#endif
 		} catch {
 			print(error)
 		}
-		print("------------")
 
 		guard FileManager.default.fileExists(atPath: datasetUrl.path) else {
-			print("File does not exist:\n\(datasetUrl.path)")
+			print("Search failed. No dataset found at:\n\(datasetUrl.path) ")
 			presentInitialViewControllerWith(datasetFileName: datasetUrl.path)
 			return
 		}
@@ -192,6 +201,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 		/* Configure search bar */
 		searchField.delegate = self
 
+		searchField.barTintColor = UIColor(red: 0.5, green: 1.0, blue: 0.0, alpha: 1.0)
+		
 		let textField = searchField.value(forKey: "searchField") as! UITextField
 		textField.defaultTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
 		textField.autocapitalizationType = .none
@@ -203,10 +214,10 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 		let clearIcon = UIImage(systemName: "xmark.circle.fill")
 		searchField.setImage(clearIcon, for: .clear, state: .normal)
 		searchField.setImage(clearIcon, for: .clear, state: .highlighted)
-
+		
 		/* Configure approximate results label */
 		N_approxLabel.text = ""
-
+		
 		/* Configure web view */
 		htmlQuery = Formatter.empty()
 	}
@@ -214,13 +225,29 @@ class ViewController: UIViewController, UITextFieldDelegate, UISearchBarDelegate
 	override func viewDidAppear(_ animated: Bool) {
 		let datasetUrl = documentDirectory.appendingPathComponent(datasetFileName)
 		
+		print("Print test.")
+		#if VERBOSE
+		print("VERBOSE ON.")
+		#endif
+		
 		/* Present Initial View Controller Scene if the file has not yet been downloaded. */
 		if !FileManager.default.fileExists(atPath: datasetUrl.path) {
-//			print("Missing:")
+			#if USE_DEBUG_DB
+			let path = Bundle.main.path(forResource: "DebugDataset", ofType: "")!
+			self.datasetUrl = URL(fileURLWithPath: path)
+			#else
 			presentInitialViewControllerWith(datasetFileName: datasetFileName)
+			self.datasetUrl = datasetUrl
+			#endif
+		} else {
+			self.datasetUrl = datasetUrl
 		}
-		print(datasetUrl.path)
-		self.datasetUrl = datasetUrl
 	}
+	
+	@IBAction func manageLanguagesClicked(_ sender: UIButton) {
+		presentInitialViewControllerWith(datasetFileName: datasetFileName)
+		
+	}
+	
+	
 }
-

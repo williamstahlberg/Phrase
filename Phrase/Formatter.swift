@@ -21,6 +21,13 @@ class Formatter {
 					}
 					.a {color: #3d4858}
 					.b {color: #909299}
+					@media (prefers-color-scheme: dark) {
+						body {
+							background: #1d1f22; color: white;
+						}
+						.a {color: white; opacity: 0.7}
+						.b {color: white; opacity: 0.4}
+					}
 				</style>
 			</head>
 			<body>
